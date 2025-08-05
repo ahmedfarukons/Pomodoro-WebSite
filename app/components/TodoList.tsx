@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAccentColor } from '../providers/ThemeProvider';
 
 interface Todo {
   id: number;
@@ -11,6 +12,7 @@ interface Todo {
 export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState('');
+  const { accentColor } = useAccentColor();
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +32,34 @@ export default function TodoList() {
     setTodos(todos.filter(todo => todo.id !== id));
   };
 
+  // Accent color'a göre renk sınıfları
+  const getColorClasses = (color: string) => {
+    switch (color) {
+      case '#22c55e': // Yeşil
+        return {
+          button: 'bg-green-600 hover:bg-green-700 focus:ring-green-500',
+          checkbox: 'text-green-600 focus:ring-green-500'
+        };
+      case '#3b82f6': // Mavi
+        return {
+          button: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+          checkbox: 'text-blue-600 focus:ring-blue-500'
+        };
+      case '#ec4899': // Pembe
+        return {
+          button: 'bg-pink-600 hover:bg-pink-700 focus:ring-pink-500',
+          checkbox: 'text-pink-600 focus:ring-pink-500'
+        };
+      default: // Mor (varsayılan)
+        return {
+          button: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
+          checkbox: 'text-indigo-600 focus:ring-indigo-500'
+        };
+    }
+  };
+
+  const colors = getColorClasses(accentColor);
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Görevler</h2>
@@ -44,7 +74,7 @@ export default function TodoList() {
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 font-medium"
+          className={`px-4 py-2 ${colors.button} text-white rounded-lg focus:outline-none focus:ring-2 transition-colors duration-200 font-medium`}
         >
           ➕ Ekle
         </button>
@@ -61,7 +91,7 @@ export default function TodoList() {
                 type="checkbox"
                 checked={todo.completed}
                 onChange={() => toggleTodo(todo.id)}
-                className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 rounded"
+                className={`h-5 w-5 ${colors.checkbox} rounded`}
               />
               <span className={`${todo.completed ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}>
                 {todo.text}

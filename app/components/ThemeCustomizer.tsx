@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { useTheme } from 'next-themes';
+import { useAccentColor } from '../providers/ThemeProvider';
 
 export default function ThemeCustomizer() {
   const { theme, setTheme } = useTheme();
-  const [accentColor, setAccentColor] = useState('#6366f1');
+  const { accentColor, setAccentColor } = useAccentColor();
 
   const themes = [
     { name: 'Mor', value: 'purple', color: '#6366f1' },
