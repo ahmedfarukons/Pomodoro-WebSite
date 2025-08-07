@@ -1,12 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useUser } from '../contexts/UserContext';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Taskbar() {
-  const { data: session } = useSession();
+  const { user, logout } = useUser();
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth');
+    setIsOpen(false);
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50">
@@ -32,7 +40,7 @@ export default function Taskbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </Link>
-            {session ? (
+            {user ? (
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
@@ -42,7 +50,7 @@ export default function Taskbar() {
                 </svg>
               </button>
             ) : (
-              <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+              <Link href="/auth" className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                 </svg>
@@ -53,10 +61,10 @@ export default function Taskbar() {
       </div>
 
       {/* Profil Menüsü */}
-      {isOpen && session && (
+      {isOpen && user && (
         <div className="absolute bottom-16 right-4 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
           <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-            {session.user?.email}
+            {user.email}
           </div>
           <Link
             href="/profile"
@@ -71,7 +79,7 @@ export default function Taskbar() {
             Ayarlar
           </Link>
           <button
-            onClick={() => signOut()}
+            onClick={handleLogout}
             className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Çıkış Yap

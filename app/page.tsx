@@ -3,7 +3,6 @@ import PomodoroTimer from './components/PomodoroTimer';
 import SpotifyMusicPlayer from './components/SpotifyMusicPlayer';
 import TodoList from './components/TodoList';
 import UserProfile from './components/UserProfile';
-import { useSession } from 'next-auth/react';
 import ThemeCustomizer from './components/ThemeCustomizer';
 import Stats from './components/Stats';
 import Social from './components/Social';
@@ -13,45 +12,15 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function HomePage() {
-  const { data: session } = useSession();
   const { accentColor } = useAccentColor();
-  const { user, loading, login } = useUser();
+  const { user, loading } = useUser();
   const router = useRouter();
 
-  // NextAuth session ile kendi user context'ini senkronize et
   useEffect(() => {
-    if (session && !user && session.user) {
-      // Session'dan user context'ini doldur (eksik alanlar dummy ile)
-      login({
-        _id: 'spotify-' + (session.user.email || ''),
-        name: session.user.name || '',
-        email: session.user.email || '',
-        preferences: {
-          theme: 'light',
-          pomodoroSettings: {
-            workDuration: 25,
-            shortBreakDuration: 5,
-            longBreakDuration: 15,
-            longBreakInterval: 4,
-          },
-        },
-        stats: {
-          totalPomodoros: 0,
-          totalFocusTime: 0,
-          totalBreakTime: 0,
-          currentStreak: 0,
-          longestStreak: 0,
-        },
-        createdAt: new Date().toISOString(),
-      });
-    }
-  }, [session, user, login]);
-
-  useEffect(() => {
-    if (!loading && !user && !session) {
+    if (!loading && !user) {
       router.push('/auth');
     }
-  }, [user, loading, session, router]);
+  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -157,7 +126,7 @@ export default function HomePage() {
           </div>
 
           {/* Sosyal Özellikler */}
-          {session && (
+          {user && (
             <div className="mt-8">
               <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <Social />

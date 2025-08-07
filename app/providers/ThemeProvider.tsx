@@ -22,7 +22,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [accentColor, setAccentColor] = useState('#6366f1');
 
   return (
-    <NextThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <NextThemeProvider 
+      attribute="class" 
+      defaultTheme="dark" 
+      enableSystem={false}
+      disableTransitionOnChange={false}
+      storageKey="theme"
+      themes={['light', 'dark']}
+    >
       <ThemeContext.Provider value={{ accentColor, setAccentColor }}>
         {children}
       </ThemeContext.Provider>

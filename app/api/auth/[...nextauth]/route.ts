@@ -1,19 +1,9 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import SpotifyProvider from 'next-auth/providers/spotify';
-import fs from 'fs';
-import path from 'path';
-import { scopes } from '../../../../lib/spotify';
+import connectDB from '../../../../lib/mongodb';
+import User from '../../../../models/User';
 
-const usersFile = path.join(process.cwd(), 'users.json');
-
-function getUsers() {
-  if (!fs.existsSync(usersFile)) return [];
-  const data = fs.readFileSync(usersFile, 'utf-8');
-  return JSON.parse(data);
-}
-
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -22,29 +12,31 @@ const handler = NextAuth({
         password: { label: "Şifre", type: "password" }
       },
       async authorize(credentials) {
-        const users = getUsers();
-        const user = users.find(
-          u => u.email === credentials?.email && u.password === credentials?.password
-        );
-        if (user) {
-          return { id: user.id, name: user.name, email: user.email };
-        }
-        return null;
-      }
-    }),
-    SpotifyProvider({
-      clientId: process.env.SPOTIFY_CLIENT_ID!,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: scopes.join(' ')
+        try {
+          await connectDB();
+          const user = await User.findOne({ 
+            email: credentials?.email,
+            password: credentials?.password 
+          });
+          
+          if (user) {
+            return { 
+              id: user._id.toString(), 
+              name: user.name, 
+              email: user.email 
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error('Auth error:', error);
+          return null;
         }
       }
     })
   ],
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: '/login',
+    signIn: '/auth',
   },
   callbacks: {
     async session({ session, token }) {
@@ -60,6 +52,8 @@ const handler = NextAuth({
       return token;
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }; 

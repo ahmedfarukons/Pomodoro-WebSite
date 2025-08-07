@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { signIn } from 'next-auth/react';
+import { useUser } from '../contexts/UserContext';
 
 interface Track {
   id: string;
@@ -21,7 +20,7 @@ interface Playlist {
 }
 
 export default function SpotifyMusicPlayer() {
-  const { data: session } = useSession();
+  const { user } = useUser();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [volume, setVolume] = useState(50);
@@ -79,8 +78,9 @@ export default function SpotifyMusicPlayer() {
   }, []);
 
   const handlePlayPause = () => {
-    if (!session) {
-      signIn('spotify');
+    if (!user) {
+      // Redirect to auth page instead of NextAuth signIn
+      window.location.href = '/auth';
       return;
     }
     setIsPlaying(!isPlaying);
@@ -125,11 +125,11 @@ export default function SpotifyMusicPlayer() {
     setIsPlaying(true);
   };
 
-  if (!session) {
+  if (!user) {
     return (
       <div className="fixed bottom-20 left-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-40">
         <button
-          onClick={() => signIn('spotify')}
+          onClick={() => window.location.href = '/auth'}
           className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
           <span>🎵</span>
