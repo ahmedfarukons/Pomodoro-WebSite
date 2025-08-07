@@ -8,18 +8,70 @@ import ThemeCustomizer from './components/ThemeCustomizer';
 import Stats from './components/Stats';
 import Social from './components/Social';
 import { useAccentColor } from './providers/ThemeProvider';
+import { useUser } from './contexts/UserContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function HomePage() {
   const { data: session } = useSession();
   const { accentColor } = useAccentColor();
+  const { user, loading, login } = useUser();
+  const router = useRouter();
+
+  // NextAuth session ile kendi user context'ini senkronize et
+  useEffect(() => {
+    if (session && !user && session.user) {
+      // Session'dan user context'ini doldur (eksik alanlar dummy ile)
+      login({
+        _id: 'spotify-' + (session.user.email || ''),
+        name: session.user.name || '',
+        email: session.user.email || '',
+        preferences: {
+          theme: 'light',
+          pomodoroSettings: {
+            workDuration: 25,
+            shortBreakDuration: 5,
+            longBreakDuration: 15,
+            longBreakInterval: 4,
+          },
+        },
+        stats: {
+          totalPomodoros: 0,
+          totalFocusTime: 0,
+          totalBreakTime: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+        },
+        createdAt: new Date().toISOString(),
+      });
+    }
+  }, [session, user, login]);
+
+  useEffect(() => {
+    if (!loading && !user && !session) {
+      router.push('/auth');
+    }
+  }, [user, loading, session, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 dark:from-gray-900 dark:via-purple-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   // Accent color'a göre gradient renkleri belirle
   const getGradientColors = (color: string) => {
     switch (color) {
       case '#22c55e': // Yeşil
         return {
-          from: 'from-green-50',
-          via: 'via-emerald-50', 
+          from: 'from-white',
+          via: 'via-green-50', 
           to: 'to-green-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-green-900',
@@ -30,8 +82,8 @@ export default function HomePage() {
         };
       case '#3b82f6': // Mavi
         return {
-          from: 'from-blue-50',
-          via: 'via-cyan-50',
+          from: 'from-white',
+          via: 'via-blue-50',
           to: 'to-blue-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-blue-900',
@@ -42,8 +94,8 @@ export default function HomePage() {
         };
       case '#ec4899': // Pembe
         return {
-          from: 'from-pink-50',
-          via: 'via-rose-50',
+          from: 'from-white',
+          via: 'via-pink-50',
           to: 'to-pink-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-pink-900',
@@ -54,8 +106,8 @@ export default function HomePage() {
         };
       default: // Mor (varsayılan)
         return {
-          from: 'from-purple-50',
-          via: 'via-pink-50',
+          from: 'from-white',
+          via: 'via-purple-50',
           to: 'to-purple-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-purple-900',
@@ -76,17 +128,17 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Sol taraf - Todo Listesi ve Tema Özelleştirme */}
             <div className="space-y-8">
-              <div className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <TodoList />
               </div>
-              <div className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <ThemeCustomizer />
               </div>
             </div>
             
             {/* Orta - Pomodoro Timer ve İstatistikler */}
             <div className="lg:col-span-2 space-y-8">
-              <div className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-xl p-8 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-8 border ${colors.border} ${colors.darkBorder}`}>
                 <div className="text-center mb-8">
                   <h1 className={`text-5xl font-bold bg-gradient-to-r ${colors.textGradient} bg-clip-text text-transparent`}>
                     Pomodoro Zamanlayıcı
@@ -98,7 +150,7 @@ export default function HomePage() {
                 <PomodoroTimer />
               </div>
               
-              <div className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <Stats />
               </div>
             </div>
@@ -107,7 +159,7 @@ export default function HomePage() {
           {/* Sosyal Özellikler */}
           {session && (
             <div className="mt-8">
-              <div className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <Social />
               </div>
             </div>
