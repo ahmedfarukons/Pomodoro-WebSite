@@ -1,68 +1,46 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../../lib/mongodb';
 import User from '../../../../models/User';
 import bcrypt from 'bcryptjs';
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password } = await req.json();
 
-    // MongoDB'ye bağlan
-    await connectDB();
-
-    // Email kontrolü
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Bu email adresi zaten kullanılıyor' 
-      }, { status: 400 });
+    if (!name || !email || !password) {
+      return NextResponse.json({ success: false, error: 'Tüm alanlar zorunlu.' }, { status: 400 });
     }
 
-    // Şifreyi hash'le
-    const hashedPassword = await bcrypt.hash(password, 12);
+    await connectDB();
 
-    // Yeni kullanıcı oluştur
-    const user = new User({
+    const existingUser = await (User as any).findOne({ email });
+    if (existingUser) {
+      return NextResponse.json({ success: false, error: 'Bu e-posta ile zaten kayıtlı bir kullanıcı var.' }, { status: 400 });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      preferences: {
-        theme: 'system',
-        pomodoroSettings: {
-          workDuration: 25,
-          shortBreakDuration: 5,
-          longBreakDuration: 15,
-          longBreakInterval: 4
-        }
-      }
     });
 
-    await user.save();
+    await newUser.save();
 
-    // Şifreyi response'dan çıkar
     const userResponse = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      preferences: user.preferences,
-      stats: user.stats,
-      createdAt: user.createdAt
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      preferences: newUser.preferences,
+      stats: newUser.stats,
+      createdAt: newUser.createdAt,
     };
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Kullanıcı başarıyla oluşturuldu!',
-      user: userResponse
-    });
-
+    return NextResponse.json({ success: true, message: 'Kayıt başarılı!', user: userResponse });
   } catch (error) {
-    console.error('Kayıt hatası:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Kayıt işlemi başarısız',
-      details: error instanceof Error ? error.message : 'Bilinmeyen hata'
-    }, { status: 500 });
+    console.error('Registration error:', error);
+    return NextResponse.json({ success: false, error: 'Kayıt işlemi sırasında bir hata oluştu.' }, { status: 500 });
   }
 }
+
 

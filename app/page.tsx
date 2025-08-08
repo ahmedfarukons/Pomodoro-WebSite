@@ -39,9 +39,9 @@ export default function HomePage() {
     switch (color) {
       case '#22c55e': // Yeşil
         return {
-          from: 'from-white',
-          via: 'via-green-50', 
-          to: 'to-green-100',
+          from: 'from-fuchsia-100',
+          via: 'via-purple-200', 
+          to: 'to-rose-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-green-900',
           darkTo: 'dark:to-gray-800',
@@ -51,9 +51,9 @@ export default function HomePage() {
         };
       case '#3b82f6': // Mavi
         return {
-          from: 'from-white',
-          via: 'via-blue-50',
-          to: 'to-blue-100',
+          from: 'from-fuchsia-100',
+          via: 'via-purple-200',
+          to: 'to-rose-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-blue-900',
           darkTo: 'dark:to-gray-800',
@@ -63,9 +63,9 @@ export default function HomePage() {
         };
       case '#ec4899': // Pembe
         return {
-          from: 'from-white',
-          via: 'via-pink-50',
-          to: 'to-pink-100',
+          from: 'from-fuchsia-100',
+          via: 'via-purple-200',
+          to: 'to-rose-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-pink-900',
           darkTo: 'dark:to-gray-800',
@@ -75,9 +75,9 @@ export default function HomePage() {
         };
       default: // Mor (varsayılan)
         return {
-          from: 'from-white',
-          via: 'via-purple-50',
-          to: 'to-purple-100',
+          from: 'from-fuchsia-100',
+          via: 'via-purple-200',
+          to: 'to-rose-100',
           darkFrom: 'dark:from-gray-900',
           darkVia: 'dark:via-purple-900',
           darkTo: 'dark:to-gray-800',
@@ -97,17 +97,17 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Sol taraf - Todo Listesi ve Tema Özelleştirme */}
             <div className="space-y-8">
-              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-white/80 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <TodoList />
               </div>
-              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-white/80 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <ThemeCustomizer />
               </div>
             </div>
             
             {/* Orta - Pomodoro Timer ve İstatistikler */}
             <div className="lg:col-span-2 space-y-8">
-              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-8 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-white/80 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-8 border ${colors.border} ${colors.darkBorder}`}>
                 <div className="text-center mb-8">
                   <h1 className={`text-5xl font-bold bg-gradient-to-r ${colors.textGradient} bg-clip-text text-transparent`}>
                     Pomodoro Zamanlayıcı
@@ -119,7 +119,7 @@ export default function HomePage() {
                 <PomodoroTimer />
               </div>
               
-              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-white/80 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <Stats />
               </div>
             </div>
@@ -128,7 +128,7 @@ export default function HomePage() {
           {/* Sosyal Özellikler */}
           {user && (
             <div className="mt-8">
-              <div className={`bg-gray-100 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
+              <div className={`bg-white/80 dark:bg-gray-800 backdrop-blur-lg rounded-3xl shadow-xl p-6 border ${colors.border} ${colors.darkBorder}`}>
                 <Social />
               </div>
             </div>

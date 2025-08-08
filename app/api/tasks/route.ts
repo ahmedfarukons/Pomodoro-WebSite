@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       title,
       description: description || '',
       priority: priority || 'medium',
-      category: category || 'genel',
+      category: category || 'general',
       estimatedPomodoros: estimatedPomodoros || 1,
       dueDate: dueDate ? new Date(dueDate) : null,
       completed: false,

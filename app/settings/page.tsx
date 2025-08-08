@@ -163,16 +163,6 @@ export default function SettingsPage() {
                   Görünüm
                 </button>
                 <button
-                  onClick={() => setActiveTab('notifications')}
-                  className={`${
-                    activeTab === 'notifications'
-                      ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                  } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm`}
-                >
-                  Bildirimler
-                </button>
-                <button
                   onClick={() => setActiveTab('pomodoro')}
                   className={`${
                     activeTab === 'pomodoro'
@@ -181,16 +171,6 @@ export default function SettingsPage() {
                   } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm`}
                 >
                   Pomodoro
-                </button>
-                <button
-                  onClick={() => setActiveTab('debug')}
-                  className={`${
-                    activeTab === 'debug'
-                      ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                  } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm`}
-                >
-                  Debug
                 </button>
               </nav>
             </div>
@@ -236,72 +216,9 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {activeTab === 'notifications' && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Bildirim Tercihleri</h3>
-                    <div className="mt-4 space-y-4">
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id="email-notifications"
-                          checked={preferences?.notifications?.email || false}
-                          onChange={(e) => {
-                            const newPrefs = {
-                              ...preferences,
-                              notifications: {
-                                ...preferences?.notifications,
-                                email: e.target.checked
-                              }
-                            };
-                            setPreferences(newPrefs);
-                            savePreferences(newPrefs);
-                          }}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded"
-                        />
-                        <label htmlFor="email-notifications" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          E-posta Bildirimleri
-                        </label>
-                      </div>
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id="desktop-notifications"
-                          checked={preferences?.notifications?.desktop || true}
-                          onChange={(e) => {
-                            const newPrefs = {
-                              ...preferences,
-                              notifications: {
-                                ...preferences?.notifications,
-                                desktop: e.target.checked
-                              }
-                            };
-                            setPreferences(newPrefs);
-                            savePreferences(newPrefs);
-                          }}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded"
-                        />
-                        <label htmlFor="desktop-notifications" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Masaüstü Bildirimleri
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {activeTab === 'pomodoro' && (
                 <div className="space-y-6">
                   <PomodoroSettings />
-                </div>
-              )}
-
-              {activeTab === 'debug' && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Debug Bilgileri</h3>
-                    <SpotifyDebug />
-                  </div>
                 </div>
               )}
             </div>

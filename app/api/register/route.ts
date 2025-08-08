@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,11 +19,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Bu e-posta ile zaten kayıtlı bir kullanıcı var.' }, { status: 400 });
     }
 
-    // Create new user
+    // Create new user (hash password)
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       name,
       email,
-      password
+      password: hashedPassword,
     });
 
     await newUser.save();

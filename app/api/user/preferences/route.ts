@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import connectDB from '../../../../lib/mongodb';
 import User from '../../../../models/User';
+import { authOptions } from '../../auth/[...nextauth]/route';
+
+function getUserIdFromAuthHeader(req: NextRequest): string | null {
+  const auth = req.headers.get('authorization') || '';
+  if (!auth.startsWith('Bearer ')) return null;
+  const token = auth.substring('Bearer '.length).trim();
+  return token || null;
+}
 
 // GET - Get user preferences
 export async function GET(req: NextRequest) {
   try {
-    // Get user ID from Authorization header
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const session = await getServerSession(authOptions);
+    let userId: string | null = session?.user?.id || null;
+
+    if (!userId) {
+      userId = getUserIdFromAuthHeader(req);
     }
-    
-    const userId = authHeader.replace('Bearer ', '');
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -37,13 +46,13 @@ export async function GET(req: NextRequest) {
 // PUT - Update user preferences
 export async function PUT(req: NextRequest) {
   try {
-    // Get user ID from Authorization header
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const session = await getServerSession(authOptions);
+    let userId: string | null = session?.user?.id || null;
+
+    if (!userId) {
+      userId = getUserIdFromAuthHeader(req);
     }
-    
-    const userId = authHeader.replace('Bearer ', '');
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -67,4 +76,4 @@ export async function PUT(req: NextRequest) {
     console.error('Update preferences error:', error);
     return NextResponse.json({ error: 'Tercihler güncellenirken bir hata oluştu.' }, { status: 500 });
   }
-} 
+}

@@ -1,35 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import connectDB from '../../../../../lib/mongodb';
-import User from '../../../../../models/User';
-import { authOptions } from '../../[...nextauth]/route';
 import spotifyApi from '../../../../../lib/spotify';
 
 export async function GET(req: NextRequest) {
   try {
-    // Temporary hardcoded values for testing
-    const tempEnv = {
-      SPOTIFY_CLIENT_ID: 'eff198ef671f4786be5c0cb27cd2dfa8',
-      SPOTIFY_CLIENT_SECRET: '3b90062413a445bd9e11e6ea1f3239a7',
-      SPOTIFY_REDIRECT_URI: 'http://127.0.0.1:3001/api/auth/spotify/callback',
-    };
-
-    // Check if required environment variables are set
-    if (!tempEnv.SPOTIFY_CLIENT_ID || !tempEnv.SPOTIFY_CLIENT_SECRET || !tempEnv.SPOTIFY_REDIRECT_URI) {
-      console.error('Missing Spotify environment variables');
-      return NextResponse.redirect(new URL('/settings?error=spotify_config_missing', req.url));
-    }
-
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
-      console.error('No session found, redirecting to auth');
-      return NextResponse.redirect(new URL('/auth', req.url));
-    }
+    console.log('Spotify callback started');
 
     const { searchParams } = new URL(req.url);
     const code = searchParams.get('code');
     const error = searchParams.get('error');
+
+    console.log('URL parameters:', { code: code ? 'Present' : 'Missing', error });
 
     if (error) {
       console.error('Spotify OAuth error:', error);
@@ -41,43 +21,49 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL('/settings?error=no_code', req.url));
     }
 
-    await connectDB();
+    console.log('Authorization code received, proceeding with token exchange...');
 
     try {
-      // Configure Spotify API with credentials
-      spotifyApi.setClientId(tempEnv.SPOTIFY_CLIENT_ID);
-      spotifyApi.setClientSecret(tempEnv.SPOTIFY_CLIENT_SECRET);
-      spotifyApi.setRedirectUri(tempEnv.SPOTIFY_REDIRECT_URI);
-
       console.log('Exchanging code for tokens...');
+      
       const data = await spotifyApi.authorizationCodeGrant(code);
+      console.log('Token exchange successful:', {
+        hasAccessToken: !!data.body.access_token,
+        hasRefreshToken: !!data.body.refresh_token,
+        expiresIn: data.body.expires_in
+      });
+      
       const { access_token, refresh_token } = data.body;
 
-      console.log('Tokens received, updating user...');
-      
-      // Update user with Spotify tokens in preferences
-      const UserModel = User as any;
-      await UserModel.findByIdAndUpdate(
-        session.user.id,
-        {
-          $set: {
-            'preferences.spotifyAccessToken': access_token,
-            'preferences.spotifyRefreshToken': refresh_token,
-            updatedAt: new Date()
-          }
-        },
-        { new: true }
-      );
+      // Store tokens in localStorage for client-side access
+      const tokenData = {
+        spotifyAccessToken: access_token,
+        spotifyRefreshToken: refresh_token,
+        timestamp: Date.now()
+      };
 
-      console.log('User updated successfully');
-      return NextResponse.redirect(new URL('/settings?success=spotify_connected', req.url));
+      console.log('Token data prepared, redirecting to settings...');
+
+      // Redirect to settings with success and token data
+      const successUrl = new URL('/settings?success=spotify_connected', req.url);
+      successUrl.searchParams.set('tokens', JSON.stringify(tokenData));
+      
+      return NextResponse.redirect(successUrl);
     } catch (tokenError) {
       console.error('Error exchanging code for tokens:', tokenError);
+      console.error('Token error details:', {
+        message: tokenError instanceof Error ? tokenError.message : 'Unknown error',
+        stack: tokenError instanceof Error ? tokenError.stack : undefined
+      });
       return NextResponse.redirect(new URL('/settings?error=token_exchange_failed', req.url));
     }
 
   } catch (error) {
     console.error('Spotify callback error:', error);
+    console.error('General error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return NextResponse.redirect(new URL('/settings?error=callback_failed', req.url));
   }
 }
