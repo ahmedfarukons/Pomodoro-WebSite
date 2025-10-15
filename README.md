@@ -1,5 +1,9 @@
 # Pomodoro Plus - Spotify Entegrasyonu
 
+<div align="center">
+  <img src="docs/screenshot.png" alt="Pomodoro Plus Ekran Görüntüsü" width="800"/>
+</div>
+
 Modern ve kapsamlı Pomodoro zamanlayıcı uygulaması ile Spotify entegrasyonu.
 
 ## 🚀 Özellikler
