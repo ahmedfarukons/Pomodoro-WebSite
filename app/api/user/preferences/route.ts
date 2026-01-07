@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '../../../../lib/mongodb';
 import User from '../../../../models/User';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '../../../../lib/auth';
 
 function getUserIdFromAuthHeader(req: NextRequest): string | null {
   const auth = req.headers.get('authorization') || '';
